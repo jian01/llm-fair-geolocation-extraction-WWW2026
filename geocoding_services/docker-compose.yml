@@ -1,0 +1,84 @@
+services:
+  elasticsearch:
+    build:
+      context: .
+      dockerfile: elastic_dockerfile
+    container_name: es7
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms4g -Xmx4g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s" ]
+      interval: 5s
+      timeout: 2s
+      retries: 60
+
+  pelias-schema:
+    image: pelias/schema:latest
+    depends_on: [ elasticsearch ]
+    environment: [ "PELIAS_CONFIG=/code/pelias.json" ]
+    volumes:
+      - ./pelias.json:/code/pelias.json:ro
+    entrypoint: ["/bin/sh","-lc"]
+    command: >
+      "
+      sleep 10;
+      until curl -fsS http://elasticsearch:9200/_cluster/health?wait_for_status=yellow&timeout=1s >/dev/null; do
+        echo 'esperando elasticsearch...'; sleep 10;
+      done;
+      node scripts/drop_index || true;
+      npm run create_index
+      "
+    restart: "no"
+
+  pelias-geonames:
+    build:
+      context: ./pelias_geonames
+      dockerfile: Dockerfile
+    depends_on: [ elasticsearch ]
+    environment: [ "PELIAS_CONFIG=/code/pelias.json" ]
+    volumes:
+      - ./pelias.json:/code/pelias.json:ro
+      - ./data/geonames:/data/geonames
+    entrypoint: ["/bin/bash","-lc"]
+    command: >
+      "
+      until curl -m 2 -fsS http://elasticsearch:9200/pelias >/dev/null; do
+        echo 'esperando elasticsearch...'; sleep 2;
+      done;
+      echo "Downloading";
+      npm start;
+      "
+    restart: "no"
+
+  pelias-api:
+    image: pelias/api:latest
+    depends_on: [ elasticsearch ]
+    environment: [ "PELIAS_CONFIG=/code/pelias.json" ]
+    volumes:
+      - ./pelias.json:/code/pelias.json:ro
+    ports: [ "3100:3100" ]
+    entrypoint: ["/bin/bash","-lc"]
+    command: >
+      "
+      until curl -m 2 -fsS http://elasticsearch:9200/pelias >/dev/null; do
+        echo 'esperando índice pelias...'; sleep 10;
+      done;
+      npm start
+      "
+    restart: unless-stopped
+
+volumes:
+  esdata:

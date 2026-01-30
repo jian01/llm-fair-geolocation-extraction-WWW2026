@@ -1,0 +1,5 @@
+FROM docker.elastic.co/elasticsearch/elasticsearch:7.17.23
+
+# instala ICU y phonetic (los dos usados por Pelias)
+RUN elasticsearch-plugin install --batch analysis-icu && \
+    elasticsearch-plugin install --batch analysis-phonetic

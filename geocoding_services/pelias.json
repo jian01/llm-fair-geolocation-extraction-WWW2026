@@ -1,0 +1,24 @@
+{
+  "esclient": { "hosts": [{ "protocol": "http", "host": "elasticsearch", "port": 9200 }] },
+  "schema": { "indexName": "pelias" },
+  "imports": {
+    "adminLookup": { "enabled": false },
+    "geonames": {
+      "datapath": "/data/geonames",
+      "countryCode": "ALL"
+    }
+  },
+  "api": {
+    "defaultParameters": {
+      "show": ["addendum"]
+    },
+    "autocomplete": {
+    "layers": [
+      "address","street","venue",
+      "neighbourhood","borough",
+      "locality","localadmin","county",
+      "region","macroregion","country"
+      ]
+    }
+  }
+}
