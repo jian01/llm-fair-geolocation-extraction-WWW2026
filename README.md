@@ -3,6 +3,7 @@
 This repository contains the implementation of the two-step geolocation extraction framework presented in the paper "Fair geolocation extraction from humanitarian documents using Large Language Models" as presented at the Workshop on Multimodal Content Analysis for Social Good (MM4SG) 2026 co-located with WebConf (WWW) 2026. 
 
 If you use this work, please cite:
+
 @article{cafferata2026large,
   title={Large Language Models for Geolocation Extraction in Humanitarian Crisis Response},
   author={Cafferata, Gianmarco and Demarco, Tiziano and Kalimeri, Kyriaki and Mejova, Yelena and Beir{\'o}, Mariano G},
