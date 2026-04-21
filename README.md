@@ -54,5 +54,4 @@ Since pelias does not support some geonames feature codes some of the pelias scr
 
 Some of the scripts are still missing and will be added soon.
 
-## Citation
-WIP
+
